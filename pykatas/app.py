@@ -10,9 +10,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from typing import List
 
-from models import Kata, Submission, Result
-from kata_manager import KATAS
-from docker_executor import run_code_in_docker
+from .models import Kata, Submission, Result
+from .kata_manager import KATAS
+from .docker_executor import run_code_in_docker
 
 app = FastAPI(title="Simple Kata Platform")
 

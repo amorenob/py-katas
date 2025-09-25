@@ -8,7 +8,7 @@ import os
 import json
 import yaml
 from pathlib import Path
-from models import Result
+from .models import Result
 
 
 def run_code_in_docker(user_code: str, kata_id: str) -> Result:

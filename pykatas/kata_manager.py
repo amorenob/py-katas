@@ -4,7 +4,7 @@ Kata management functionality
 
 import yaml
 from pathlib import Path
-from models import Kata
+from .models import Kata
 
 
 def load_katas():

@@ -4,7 +4,7 @@ Usage:
     python start.py
 """
 
-from app import app  # FastAPI instance
+from pykatas.app import app  # FastAPI instance
 
 def main():
     print("Kata Exercise")
