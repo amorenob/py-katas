@@ -1,0 +1,32 @@
+id: reverse-string
+title: Reverse a String
+description: |
+  Write a function `reverse_string(s)` that takes a string and returns it reversed.
+  
+  Your function should:
+  - Take one parameter: `s` (a string)
+  - Return the string in reverse order
+  - Handle empty strings and single characters
+
+starter_code: |
+  def reverse_string(s):
+      pass
+
+test_cases:
+  - name: "Basic string reversal"
+    inputs: ["hello"]
+    expected: "olleh"
+  - name: "Empty string"
+    inputs: [""]
+    expected: ""
+  - name: "Single character"
+    inputs: ["a"]
+    expected: "a"
+  - name: "String with spaces"
+    inputs: ["hello world"]
+    expected: "dlrow olleh"
+  - name: "String with numbers"
+    inputs: ["abc123"]
+    expected: "321cba"
+
+function_name: "reverse_string"

@@ -1,0 +1,32 @@
+id: add-numbers
+title: Add Two Numbers
+description: |
+  Write a function `add(a, b)` that returns the sum of two numbers.
+  
+  Your function should:
+  - Take two parameters: `a` and `b`
+  - Return their sum
+  - Handle positive, negative, and zero values
+
+starter_code: |
+  def add(a, b):
+      pass
+
+test_cases:
+  - name: "Basic addition"
+    inputs: [2, 3]
+    expected: 5
+  - name: "Zero addition"
+    inputs: [0, 0]
+    expected: 0
+  - name: "Negative and positive"
+    inputs: [-1, 1]
+    expected: 0
+  - name: "Positive and negative"
+    inputs: [10, -5]
+    expected: 5
+  - name: "Large numbers"
+    inputs: [100, 200]
+    expected: 300
+
+function_name: "add"

@@ -13,10 +13,10 @@ import docker
 import tempfile
 import os
 import json
-import importlib.util
+import yaml
 import sys
 from pathlib import Path
-from typing import List
+from typing import List, Dict, Any
 
 app = FastAPI(title="Simple Kata Platform")
 
@@ -39,26 +39,30 @@ class Result(BaseModel):
     message: str = ""
 
 def load_katas():
-    """Load katas from the katas directory"""
+    """Load katas from YAML files in the katas directory"""
     katas = []
     katas_dir = Path("katas")
     
     if not katas_dir.exists():
         return katas
         
-    for kata_file in katas_dir.glob("*.py"):
+    for kata_file in katas_dir.glob("*.yaml"):
         try:
-            # Import the kata module
-            spec = importlib.util.spec_from_file_location(kata_file.stem, kata_file)
-            if spec and spec.loader:
-                module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(module)
+            with open(kata_file, 'r') as f:
+                kata_data = yaml.safe_load(f)
                 
-                # Get kata info
-                if hasattr(module, 'kata_info'):
-                    info = module.kata_info()
-                    kata = Kata(**info)
-                    katas.append(kata)
+            # Validate required fields
+            required_fields = ['id', 'title', 'description', 'starter_code']
+            if all(field in kata_data for field in required_fields):
+                kata = Kata(
+                    id=kata_data['id'],
+                    title=kata_data['title'],
+                    description=kata_data['description'],
+                    starter_code=kata_data['starter_code']
+                )
+                katas.append(kata)
+            else:
+                print(f"Missing required fields in {kata_file}")
                     
         except Exception as e:
             print(f"Error loading kata {kata_file}: {e}")
@@ -112,13 +116,17 @@ async def submit_solution(submission: Submission):
 def run_code_in_docker(user_code: str, kata_id: str) -> Result:
     """Execute user code in a secure Docker container"""
     
-    # Find the kata file
-    kata_file = Path(f"katas/{kata_id.replace('-', '_')}.py")
+    # Find the kata YAML file
+    kata_file = Path(f"katas/{kata_id.replace('-', '_')}.yaml")
     
     if not kata_file.exists():
         return Result(status="ERROR", message=f"Kata file not found: {kata_file}")
     
     try:
+        # Load kata configuration
+        with open(kata_file, 'r') as f:
+            kata_config = yaml.safe_load(f)
+            
         # Initialize Docker client
         try:
             client = docker.from_env()
@@ -127,18 +135,63 @@ def run_code_in_docker(user_code: str, kata_id: str) -> Result:
         except docker.errors.DockerException as de:
             return Result(status="ERROR", message=f"Docker not available: {de}. Is the daemon running and do you have permission to access the Docker socket?")
         
-        # Read the kata file content
-        with open(kata_file, 'r') as f:
-            kata_content = f.read()
-        
-        # Create a test runner script that combines kata and user code
+        # Create a test runner script that tests the user code against YAML-defined test cases
         test_script = f'''
 import json
 import sys
 import traceback
 
-# Kata module content
-{kata_content}
+# Kata configuration
+kata_config = {repr(kata_config)}
+
+def test_solution(user_code: str) -> dict:
+    """Test the user's solution against YAML-defined test cases"""
+    try:
+        # Execute user code to define the function
+        exec_globals = {{}}
+        exec(user_code, exec_globals)
+        
+        # Get the function name from kata config
+        function_name = kata_config.get('function_name', 'solution')
+        user_function = exec_globals.get(function_name)
+        
+        if not user_function:
+            return {{
+                "status": "ERROR",
+                "message": f"Function '{{function_name}}' not found. Make sure you define a function named '{{function_name}}'."
+            }}
+        
+        # Run test cases from YAML
+        test_cases = kata_config.get('test_cases', [])
+        
+        for i, test_case in enumerate(test_cases):
+            inputs = test_case.get('inputs', [])
+            expected = test_case.get('expected')
+            test_name = test_case.get('name', f"Test {{i+1}}")
+            
+            try:
+                result = user_function(*inputs)
+                if result != expected:
+                    return {{
+                        "status": "FAIL",
+                        "message": f"{{test_name}} failed: {{function_name}}({{', '.join(map(str, inputs))}}) returned {{result}}, expected {{expected}}"
+                    }}
+            except Exception as e:
+                return {{
+                    "status": "ERROR",
+                    "message": f"{{test_name}} failed with error: {{str(e)}}"
+                }}
+        
+        return {{
+            "status": "PASS", 
+            "message": "All tests passed! Great job!"
+        }}
+        
+    except Exception as e:
+        return {{
+            "status": "ERROR",
+            "message": f"Error executing code: {{str(e)}}"
+        }}
 
 # User submitted code
 user_code = """
