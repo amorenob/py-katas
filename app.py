@@ -120,7 +120,12 @@ def run_code_in_docker(user_code: str, kata_id: str) -> Result:
     
     try:
         # Initialize Docker client
-        client = docker.from_env()
+        try:
+            client = docker.from_env()
+            # Quick ping to ensure daemon reachable early
+            client.ping()
+        except docker.errors.DockerException as de:
+            return Result(status="ERROR", message=f"Docker not available: {de}. Is the daemon running and do you have permission to access the Docker socket?")
         
         # Read the kata file content
         with open(kata_file, 'r') as f:
@@ -167,7 +172,7 @@ if __name__ == "__main__":
                 container = client.containers.run(
                     "python:3.11-alpine",
                     command=["python", "/app/test_runner.py"],
-                    volumes={{temp_dir: {{'bind': '/app', 'mode': 'ro'}}}},
+                    volumes={temp_dir: {'bind': '/app', 'mode': 'ro'}},
                     user="1000:1000",  # Non-root user
                     network_mode="none",  # No network access
                     mem_limit="128m",  # Memory limit
@@ -175,8 +180,7 @@ if __name__ == "__main__":
                     cpu_quota=50000,  # 50% CPU limit
                     remove=True,
                     stdout=True,
-                    stderr=True,
-                    timeout=10  # 10 second timeout
+                    stderr=True
                 )
                 
                 # Parse the JSON result
@@ -191,22 +195,22 @@ if __name__ == "__main__":
                 except json.JSONDecodeError:
                     return Result(
                         status="ERROR", 
-                        message=f"Invalid output from container: {{output}}"
+                        message=f"Invalid output from container: {output}"
                     )
                     
             except docker.errors.ContainerError as e:
                 return Result(
                     status="ERROR",
-                    message=f"Container execution failed: {{e.stderr.decode() if e.stderr else str(e)}}"
+                    message=f"Container execution failed: {e.stderr.decode() if e.stderr else str(e)}"
                 )
             except Exception as e:
                 return Result(
                     status="ERROR",
-                    message=f"Docker execution error: {{str(e)}}"
+                    message=f"Docker execution error: {str(e)}"
                 )
                 
     except Exception as e:
-        return Result(status="ERROR", message=f"Error setting up Docker execution: {{str(e)}}")
+        return Result(status="ERROR", message=f"Error setting up Docker execution: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn
