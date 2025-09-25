@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Kata Platform</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Kata Exercise</h1>
+            <p>Testing environment for coding challenges</p>
+        </header>
+
+        <main>
+            <!-- Kata List Section -->
+            <section id="kata-list" class="section">
+                <h2>Available Katas</h2>
+                <div id="katas-container">
+                    <div class="loading">Loading katas...</div>
+                </div>
+            </section>
+
+            <!-- Kata Detail Section -->
+            <section id="kata-detail" class="section" style="display: none;">
+                <div class="kata-header">
+                    <h2 id="kata-title"></h2>
+                    <button id="back-btn" class="btn btn-secondary">← Back to List</button>
+                </div>
+                
+                <div class="kata-content">
+                    <div id="kata-description" class="description"></div>
+                    
+                    <div class="code-section">
+                        <h3>Your Solution:</h3>
+                        <textarea id="code-editor" placeholder="Write your code here..."></textarea>
+                        
+                        <div class="actions">
+                            <button id="submit-btn" class="btn btn-primary">Submit Solution</button>
+                            <button id="reset-btn" class="btn btn-secondary">Reset Code</button>
+                        </div>
+                    </div>
+                    
+                    <div id="result" class="result" style="display: none;"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
