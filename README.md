@@ -4,13 +4,7 @@ A web-based interface to execute kata validation code using Docker and FastAPI. 
 
 ## Architecture
 
-```
-Browser (HTML/JS) → FastAPI Server → Docker Container
-                                   ↓
-                               Python Code Execution
-                                   ↓
-                               PASS/FAIL Result
-```
+![alt text](static/image.png)
 
 ## Components
 
@@ -19,16 +13,17 @@ Browser (HTML/JS) → FastAPI Server → Docker Container
 - **Docker**: Isolated environment for secure code execution.
 
 
-## To Do (Move this to git hub issues)
-- Refactor the fastApi code so it is not all in one file. docker and kata management should be in separate files.
+## To Do (As a exercise should move some of this to git hub issues)
+- Refactor the FastAPI code so it is not all in one file. docker and kata management should be in separate files.
 - Implement not blocking docker execution. Right now the server is blocked until the docker container finishes. Should be an async call.
+- Create a basic CI/CD pipeline using GitHub Actions.
 - Can it handle multiple requests at the same time? What about 1000 requests? 
 - A way to warm up the docker containers so they start faster.
 - Should add tests for the API endpoints.
 - How could we scale this? K8s?
 
 ## Setup
-    
+
 1. Clone the repository:
 
    ```bash
@@ -44,8 +39,38 @@ Browser (HTML/JS) → FastAPI Server → Docker Container
    pip install -r requirements.txt
    ```
 
-3. Run the app:
+3. Build the Docker image:
+
+   ```bash
+   docker build -t pykatas-runner docker/
+   ```
+
+4. Run the app:
 
    ```bash
    python start.py
    ```
+
+# Katas
+
+##  How to add a more Katas?
+1. Create a new YAML file in the `katas/` directory. For example, `new_kata.yaml`.
+2. Define the kata structure in the YAML file. Example: 
+    ```yaml
+    id: new_kata
+    title: "New Kata"
+    description: A description of the new kata.
+    starter_code: |
+      def solution(x):
+            # Your code here
+            return x
+    test_cases:
+      - name: "Basic test"
+        input: 5
+        expected: 5
+      - name: "Another test"
+        input: 10
+        expected: 10
+    function_name: "solution"
+    ```
+3. Restart the FastAPI server to load the new kata.
