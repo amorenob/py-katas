@@ -12,7 +12,7 @@ from typing import List
 
 from .models import Kata, Submission, Result
 from .kata_manager import KATAS
-from .docker_executor import run_code_in_docker
+from .docker_handler import run_code_in_docker
 
 app = FastAPI(title="Simple Kata Platform")
 

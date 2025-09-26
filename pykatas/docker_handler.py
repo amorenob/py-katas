@@ -123,7 +123,7 @@ if __name__ == "__main__":
             # Run the container
             try:
                 container = client.containers.run(
-                    "python:3.11-alpine",
+                    "pykatas-runner",
                     command=["python", "/app/test_runner.py"],
                     volumes={temp_dir: {'bind': '/app', 'mode': 'ro'}},
                     user="1000:1000",  # Non-root user
