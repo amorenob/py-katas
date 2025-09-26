@@ -4,3 +4,5 @@ docker>=7.1.0
 # Docker 7.x is compatible with urllib3 2.x
 urllib3>=2.0.0
 PyYAML>=6.0
+pytest==7.4.3
+httpx==0.25.2

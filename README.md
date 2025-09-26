@@ -14,7 +14,7 @@ Browser (HTML/JS) → FastAPI Server → Docker Container
 
 ## Components
 
-- **Frontend**: Simple HTML/JS interface for submitting code and viewing results (Vanilla JS, no frameworks).
+- **Frontend**: Simple HTML/JS interface for submitting code and viewing results (Vanilla JS,).
 - **Backend**: FastAPI server handling requests and managing Docker containers.
 - **Docker**: Isolated environment for secure code execution.
 
@@ -24,9 +24,11 @@ Browser (HTML/JS) → FastAPI Server → Docker Container
 - Implement not blocking docker execution. Right now the server is blocked until the docker container finishes. Should be an async call.
 - Can it handle multiple requests at the same time? What about 1000 requests? 
 - A way to warm up the docker containers so they start faster.
+- Should add tests for the API endpoints.
+- How could we scale this? K8s?
 
 ## Setup
-
+    
 1. Clone the repository:
 
    ```bash
